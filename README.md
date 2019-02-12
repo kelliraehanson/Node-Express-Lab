@@ -1,4 +1,4 @@
-# Building RESTful APIs with Express hi
+# Building RESTful APIs with Express 
 
 ## Topics:
 
