@@ -42,52 +42,90 @@ router.get('/', (req, res) => {
 // ========================= POST
 
     router.post('/', (req, res) => {
-        const post = req.body;
-        if (!post.title || !post.contents) {
+        res.status(200).send('<div><h1>Contact</h1><input placeholder="email"/></div>');
+        const { title, contents } = req.body;
+            if (!title || !contents) {
             return res.status(400).json({
-              errorMessage: "Please provide title and contents for the post."
+                errorMessage: "Please provide title and contents for the post."
             });
-          }
+          } else {
         
-          db.insert(post)
-            .then(result => {
-              db.findById(result.id)
-                .then(post => res.status(201).json(post))
-                .catch(err =>
-                  res.status(500).json({
-                    message: "There was an error while saving the post to the database"
-                  })
-                );
+          db.insert({ title, contents })
+            .then(posts => {
+                res.status(201).json(posts);
             })
-            .catch(err =>
-              res.status(500).json({
-                error: "There was an error while saving the post to the database"
-              })
-            );
+            .catch(() => {
+                res.status(500).json({
+                  error: "There was an error while saving the post to the database"
+                });
+              });
+          }
         });
+        
 
     // ====================== PUT
 
-router.put("/:id", (req, res) => {
-    const {title, contents } = req.body;
-    if (title == undefined || contents == undefined) {
-      res.status(404)
-        .json({ errorMessage: "Please provide title and contents for the post." });
-    } else {
-      db
-      .insert({ title, contents })
-        .then(posts => {
-          res.status(200).json({ posts })
-        })
-        .catch(() =>
-          res
-            .status(500)
-            .json({ error: "There was an error while saving the post to the database" })
-        );
-    }
-  });
+    router.put("/:id", (req, res) => {
+        const { id } = req.params;
+        const { title, contents } = req.body;
+        if (!title || !contents) {
+          res.status(400).json({
+            errorMessage: "Please provide title and contents for the post."
+          });
+        } else {
+          db.findById(id)
+            .then(post => {
+              if (post.length > 0) {
+                db.update(id, { title, contents }).then(post => {
+                  if (post === 1) {
+                    db.findById(id).then(post => {
+                      res.json(post);
+                    });
+                  } else {
+                    res.status(404).json({ message: "failed to update post" });
+                  }
+                });
+              } else {
+                res.status(404).json({
+                  message: "The post with the specified ID does not exist."
+                });
+              }
+            })
+      
+            .catch(() => {
+              res
+                .status(500)
+                .json({ error: "The post information could not be modified." });
+            });
+        }
+      });
+    
   
   // ====================== DELETE 
+
+  router.delete("/:id", (req, res) => {
+    const { id } = req.params;
+  
+    db.findById(id)
+      .then(post => {
+        if (post.length > 0) {
+          db.remove(id)
+            .then(() => {
+              res.json(post);
+            })
+            .catch(() => {
+              res.status(500).json({ message: "Failed to delete Post" });
+            });
+        } else {
+          res
+            .status(404)
+            .json({ message: "The post with the specified ID does not exist." });
+        }
+      })
+      .catch(() => {
+        res.status(500).json({ error: "The post could not be removed" });
+      });
+  });
 
   
 

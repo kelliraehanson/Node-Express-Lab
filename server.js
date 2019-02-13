@@ -8,7 +8,7 @@ server.use(express.json());
 
 server.use('/api/posts', postsRouter);
 
-server.get('/', async (req, res) => {
+server.get('/', (req, res) => {
   res.send(`
     <h2>Node Express Lab</h>
     <p>Are we having fun yet?</p>
