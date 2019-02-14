@@ -10,7 +10,7 @@ server.use('/api/posts', postsRouter);
 
 server.get('/', (req, res) => {
   res.send(`
-    <h2>Node Express Lab</h>
+    <h2>Node Express Lab</h2>
     <p>Are we having fun yet?</p>
   `);
 });
